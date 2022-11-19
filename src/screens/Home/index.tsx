@@ -1,4 +1,5 @@
-import { FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Alert, FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { Participant } from "../../components/Participant"
 
@@ -6,14 +7,29 @@ import { styles } from "./styles";
 
 
 export function Home() {
-    const participantes = ["Mario de Andrade", "Costa e Silva", "Jucelino Kubicheck", "Maria Gema", "Liane", "Bernardo", "Antonio", "Pedro", "Gustavo", "Jéssica"]
+    const [participants, setParticipants] = useState<string[]>([]);
+    const [participantName, setParticipantName] = useState("");
 
     function handleParticipantAdd() {
-        console.log("Você clicou no botão Add..");
+        if(participants.includes(participantName)) {
+            return Alert.alert(`Participante já existe", "Já existe um participante com o nome: ${participantName}`)
+        }
+
+        setParticipants(prevState => [...prevState, participantName]);
+        setParticipantName("");
     }
 
     function handleParticipantRemove(name: string) {
-        console.log(`Você clicou no botão Remove: ${name}`);
+        Alert.alert("Remover", `Remover o participante: ${name}?`, [
+            {
+                text: "Sim",
+                onPress: () => setParticipants(prevState => prevState.filter(participant => participant !== name))
+            },
+            {
+                text: "Não",
+                style: "cancel",
+            },
+        ]);
     }
 
     return (
@@ -26,15 +42,20 @@ export function Home() {
                 <TextInput
                     style={styles.input}
                     placeholder="Nome do participante"
-                    placeholderTextColor="#6b6b6b" />
+                    placeholderTextColor="#6b6b6b"
+                    onChangeText={setParticipantName}
+                    value={participantName}
+                />
 
                 <TouchableOpacity style={styles.button} onPress={handleParticipantAdd}>
-                    <Text style={styles.buttonText}>+</Text>
+                    <Text style={styles.buttonText}>
+                        +
+                    </Text>
                 </TouchableOpacity>
             </View>
 
             <FlatList
-                data={participantes}
+                data={participants}
                 keyExtractor={item => item}
                 renderItem={({item}) => (
                     <Participant
@@ -46,14 +67,14 @@ export function Home() {
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={() => (
                     <Text style={styles.listEmptyText}>
-                        Ninguém chegou ao evento ainda? Adicione participantes a lista de presença.
+                        Ninguém chegou ao evento ainda? Adicione participants a lista de presença.
                     </Text>
                 )}
             />
 
         {/* <ScrollView showsVerticalScrollIndicator={false}>
             {
-                participantes.map(participante => (
+                participants.map(participante => (
                     <Participant
                         key={participante}
                         name={participante}
